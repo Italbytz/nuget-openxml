@@ -48,24 +48,41 @@ public static class PresentationDocumentExtensions
                 (SlidePart)presentationPart.GetPartById(
                     slideId.RelationshipId!);
 
-            // Extract images from slide
+            // Extract text from slide
+            var slideText = ExtractTextFromSlide(slidePart);
+            sb.AppendLine(slideText);
+            sb.AppendLine();
+
+            // If slide contains images, add them in a separate column
+            if (!slidePart.ImageParts.Any()) continue;
+            sb.AppendLine(":::");
+            sb.AppendLine("::: {.column width=\"50%\"}");
             foreach (var imagePart in slidePart.ImageParts)
             {
                 var imageDirectory = Path.Combine(outputDirectory, "images");
                 if (!Directory.Exists(imageDirectory))
                     Directory.CreateDirectory(imageDirectory);
                 var imageFileName = Path.GetFileName(imagePart.Uri.ToString());
-                var imagePath = Path.Combine(imageDirectory, imageFileName);
-                using var imageStream = imagePart.GetStream();
-                using var fileStream = File.Create(imagePath);
-                imageStream.CopyTo(fileStream);
+                // ToDo: Handle duplicate image names
+                /*var imageFileName =
+                    $"{Guid.NewGuid()}{Path.GetExtension(imagePart.Uri.ToString())}";*/
+                var imagePath =
+                    Path.Combine(imageDirectory, imageFileName);
+
+                // Save image to output directory
+                using (var imageStream = imagePart.GetStream())
+                using (var fileStream = File.Create(imagePath))
+                {
+                    imageStream.CopyTo(fileStream);
+                }
+
+                // Add image markdown
                 sb.AppendLine($"![](images/{imageFileName})");
                 sb.AppendLine();
             }
 
-            // Extract text from slide
-            var slideText = ExtractTextFromSlide(slidePart);
-            sb.AppendLine(slideText);
+            sb.AppendLine(":::");
+            sb.AppendLine("::::");
             sb.AppendLine();
         }
 
@@ -89,6 +106,15 @@ public static class PresentationDocumentExtensions
             {
                 sb.AppendLine("## " + shape.TextBody?.InnerText.Trim());
                 sb.AppendLine();
+
+                // Check if slide contains images
+                if (slidePart.ImageParts.Any())
+                {
+                    sb.AppendLine(":::: {.columns}");
+                    sb.AppendLine();
+                    sb.AppendLine("::: {.column width=\"50%\"}");
+                }
+
                 continue;
             }
 
@@ -96,6 +122,23 @@ public static class PresentationDocumentExtensions
             if (textBody != null)
                 foreach (var paragraph in textBody.Elements<A.Paragraph>())
                 {
+                    var paragraphProperties = paragraph.ParagraphProperties;
+                    var level = paragraphProperties?.Level?.Value ?? 0;
+                    var isBulleted =
+                        paragraphProperties?.GetFirstChild<A.BulletFont>() !=
+                        null ||
+                        paragraphProperties
+                            ?.GetFirstChild<A.AutoNumberedBullet>() == null;
+                    var isNumbered =
+                        paragraphProperties
+                            ?.GetFirstChild<A.AutoNumberedBullet>() != null;
+                    var indent = new string(' ', level * 2);
+                    if (isBulleted)
+                        sb.Append(indent + "- ");
+                    else if (isNumbered)
+                        sb.Append(indent + "1. ");
+                    else
+                        sb.Append(indent);
                     foreach (var run in paragraph.Elements<A.Run>())
                     {
                         var text = run.Text?.Text;
