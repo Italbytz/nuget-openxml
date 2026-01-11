@@ -8,7 +8,7 @@ using Text = DocumentFormat.OpenXml.Drawing.Text;
 namespace Italbytz.OpenXml.Tests;
 
 [TestClass]
-public sealed class Test1
+public sealed class PresentationConverterTest
 {
     [TestMethod]
     public void TestMethod4()
