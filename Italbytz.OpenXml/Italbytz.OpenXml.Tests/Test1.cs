@@ -13,12 +13,15 @@ public sealed class Test1
     [TestMethod]
     public void TestMethod4()
     {
-        var path = "/Users/nunkesser/repos/work/ppt/PM-Folien/LE01.pptx";
+        PresentationConverter.ConvertToQuartoMarkdown(
+            "/Users/nunkesser/repos/work/ppt/PM-Folien/LE01.pptx",
+            "/Users/nunkesser/repos/work/ppt/PM-Folien");
+/*        var path = "/Users/nunkesser/repos/work/ppt/PM-Folien/LE01.pptx";
         using var presentationDocument =
             PresentationDocument.Open(path, false);
         presentationDocument.ExportToQuartoMarkdown(
             "/Users/nunkesser/repos/work/ppt/PM-Folien",
-            "LE01.qmd");
+            "LE01.qmd");*/
     }
 
     [TestMethod]

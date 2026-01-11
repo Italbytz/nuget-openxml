@@ -10,7 +10,8 @@ public static class PresentationDocumentExtensions
 {
     public static void ExportToQuartoMarkdown(
         this PresentationDocument presentationDocument, string outputDirectory,
-        string fileName = "presentation.qmd")
+        string fileName = "presentation.qmd", string title = "Presentation",
+        string? author = null)
     {
         ArgumentNullException.ThrowIfNull(presentationDocument);
 
@@ -26,7 +27,9 @@ public static class PresentationDocumentExtensions
 
         // Add Quarto/Reveal.js YAML header
         sb.AppendLine("---");
-        sb.AppendLine("title: \"Presentation\"");
+        sb.AppendLine($"title: \"{title}\"");
+        if (!string.IsNullOrWhiteSpace(author))
+            sb.AppendLine($"author: \"{author}\"");
         sb.AppendLine("format: revealjs");
         sb.AppendLine("---");
         sb.AppendLine();
@@ -44,6 +47,21 @@ public static class PresentationDocumentExtensions
             var slidePart =
                 (SlidePart)presentationPart.GetPartById(
                     slideId.RelationshipId!);
+
+            // Extract images from slide
+            foreach (var imagePart in slidePart.ImageParts)
+            {
+                var imageDirectory = Path.Combine(outputDirectory, "images");
+                if (!Directory.Exists(imageDirectory))
+                    Directory.CreateDirectory(imageDirectory);
+                var imageFileName = Path.GetFileName(imagePart.Uri.ToString());
+                var imagePath = Path.Combine(imageDirectory, imageFileName);
+                using var imageStream = imagePart.GetStream();
+                using var fileStream = File.Create(imagePath);
+                imageStream.CopyTo(fileStream);
+                sb.AppendLine($"![](images/{imageFileName})");
+                sb.AppendLine();
+            }
 
             // Extract text from slide
             var slideText = ExtractTextFromSlide(slidePart);
