@@ -133,16 +133,21 @@ public static class PresentationDocumentExtensions
                         paragraphProperties
                             ?.GetFirstChild<A.AutoNumberedBullet>() != null;
                     var indent = new string(' ', level * 2);
-                    if (isBulleted)
-                        sb.Append(indent + "- ");
-                    else if (isNumbered)
-                        sb.Append(indent + "1. ");
-                    else
-                        sb.Append(indent);
                     foreach (var run in paragraph.Elements<A.Run>())
                     {
+                        
                         var text = run.Text?.Text;
-                        if (!string.IsNullOrWhiteSpace(text)) sb.Append(text);
+                        if (!string.IsNullOrWhiteSpace(text))
+                        {
+                            if (isBulleted)
+                                sb.Append(
+                                    $"{indent}- {text}");
+                            else if (isNumbered)
+                                sb.Append(
+                                    $"{indent}1. {text}");
+                            else
+                                sb.Append(text);
+                        }
                     }
 
                     sb.AppendLine();
