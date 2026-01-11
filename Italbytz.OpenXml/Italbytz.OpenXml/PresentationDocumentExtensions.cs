@@ -120,6 +120,8 @@ public static class PresentationDocumentExtensions
 
             var textBody = shape.TextBody;
             if (textBody != null)
+            {
+                var autoNumber = 0;
                 foreach (var paragraph in textBody.Elements<A.Paragraph>())
                 {
                     var paragraphProperties = paragraph.ParagraphProperties;
@@ -145,10 +147,10 @@ public static class PresentationDocumentExtensions
                         !string.IsNullOrWhiteSpace(r.Text?.Text));
                     if (hasText)
                     {
-                        if (isBulleted)
+                        if (isNumbered)
+                            sb.Append(indent + $"{++autoNumber}. ");
+                        else if (isBulleted)
                             sb.Append(indent + "- ");
-                        else if (isNumbered)
-                            sb.Append(indent + "1. ");
                         else
                             sb.Append(indent);
                     }
@@ -156,12 +158,18 @@ public static class PresentationDocumentExtensions
                     foreach (var run in paragraph.Elements<A.Run>())
                     {
                         var text = run.Text?.Text;
-                        if (!string.IsNullOrWhiteSpace(text)) sb.Append(text);
+                        if (!string.IsNullOrWhiteSpace(text))
+                            sb.Append(text);
+                        else
+                            sb.Append(" ");
                     }
 
-                    if (hasText)
+                    if (!hasText) continue;
+                    sb.AppendLine();
+                    if (!isBulleted && !isNumbered)
                         sb.AppendLine();
                 }
+            }
         }
 
         return sb.ToString().Trim();
