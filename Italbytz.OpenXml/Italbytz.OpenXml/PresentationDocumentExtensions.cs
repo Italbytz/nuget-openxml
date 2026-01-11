@@ -82,7 +82,7 @@ public static class PresentationDocumentExtensions
         var shapes = slidePart.Slide.Descendants<Shape>();
         foreach (var shape in shapes)
         {
-            if (shape.IsFooter())
+            if (shape.IsFooter() || shape.IsHeader())
                 continue;
 
             if (shape.IsTitle())

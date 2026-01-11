@@ -4,6 +4,19 @@ namespace Italbytz.OpenXml;
 
 public static class ShapeExtensions
 {
+    public static bool IsHeader(this Shape shape)
+    {
+        var placeholderShape = shape.NonVisualShapeProperties
+            ?.ApplicationNonVisualDrawingProperties
+            ?.GetFirstChild<PlaceholderShape>();
+
+        if (placeholderShape is not null && placeholderShape.Type is not null &&
+            placeholderShape.Type.HasValue)
+            return placeholderShape.Type == PlaceholderValues.Header;
+
+        return false;
+    }
+
     public static bool IsFooter(this Shape shape)
     {
         var placeholderShape = shape.NonVisualShapeProperties
