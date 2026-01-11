@@ -74,35 +74,6 @@ public static class PresentationDocumentExtensions
         File.WriteAllText(outputPath, sb.ToString());
     }
 
-    private static bool IsTitleShape(Shape shape)
-    {
-        var placeholderShape = shape.NonVisualShapeProperties
-            ?.ApplicationNonVisualDrawingProperties
-            ?.GetFirstChild<PlaceholderShape>();
-
-        if (placeholderShape is not null && placeholderShape.Type is not null &&
-            placeholderShape.Type.HasValue)
-            return placeholderShape.Type == PlaceholderValues.Title ||
-                   placeholderShape.Type == PlaceholderValues.CenteredTitle;
-
-        return false;
-    }
-
-
-    private static bool IsFooterShape(Shape shape)
-    {
-        var placeholderShape = shape.NonVisualShapeProperties
-            ?.ApplicationNonVisualDrawingProperties
-            ?.GetFirstChild<PlaceholderShape>();
-
-        if (placeholderShape is not null && placeholderShape.Type is not null &&
-            placeholderShape.Type.HasValue)
-            return placeholderShape.Type == PlaceholderValues.Footer ||
-                   placeholderShape.Type == PlaceholderValues.SlideNumber ||
-                   placeholderShape.Type == PlaceholderValues.DateAndTime;
-
-        return false;
-    }
 
     private static string ExtractTextFromSlide(SlidePart slidePart)
     {
@@ -111,10 +82,10 @@ public static class PresentationDocumentExtensions
         var shapes = slidePart.Slide.Descendants<Shape>();
         foreach (var shape in shapes)
         {
-            if (IsFooterShape(shape))
+            if (shape.IsFooter())
                 continue;
 
-            if (IsTitleShape(shape))
+            if (shape.IsTitle())
             {
                 sb.AppendLine("## " + shape.TextBody?.InnerText.Trim());
                 sb.AppendLine();
