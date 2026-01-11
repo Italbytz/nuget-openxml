@@ -11,6 +11,17 @@ namespace Italbytz.OpenXml.Tests;
 public sealed class Test1
 {
     [TestMethod]
+    public void TestMethod4()
+    {
+        var path = "/Users/nunkesser/repos/work/ppt/PM-Folien/LE01.pptx";
+        using var presentationDocument =
+            PresentationDocument.Open(path, false);
+        presentationDocument.ExportToQuartoMarkdown(
+            "/Users/nunkesser/repos/work/ppt/PM-Folien",
+            "LE01.qmd");
+    }
+
+    [TestMethod]
     public void TestMethod3()
     {
         var path = "/Users/nunkesser/repos/work/ppt/PM-Folien/LE01.pptx";
