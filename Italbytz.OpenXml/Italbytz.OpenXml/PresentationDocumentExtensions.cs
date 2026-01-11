@@ -125,32 +125,42 @@ public static class PresentationDocumentExtensions
                     var paragraphProperties = paragraph.ParagraphProperties;
                     var level = paragraphProperties?.Level?.Value ?? 0;
                     var isBulleted =
+                        paragraphProperties
+                            ?.GetFirstChild<A.NoBullet>() == null;
+                    /*var isBulleted =
+                        paragraphProperties?.GetFirstChild<A.BulletFont>() !=
+                        null &&
+                        paragraphProperties
+                            ?.GetFirstChild<A.NoBullet>() == null;*/
+                    /*var isBulleted =
                         paragraphProperties?.GetFirstChild<A.BulletFont>() !=
                         null ||
                         paragraphProperties
-                            ?.GetFirstChild<A.AutoNumberedBullet>() == null;
+                            ?.GetFirstChild<A.AutoNumberedBullet>() == null;*/
                     var isNumbered =
                         paragraphProperties
                             ?.GetFirstChild<A.AutoNumberedBullet>() != null;
                     var indent = new string(' ', level * 2);
-                    foreach (var run in paragraph.Elements<A.Run>())
+                    var hasText = paragraph.Elements<A.Run>().Any(r =>
+                        !string.IsNullOrWhiteSpace(r.Text?.Text));
+                    if (hasText)
                     {
-                        
-                        var text = run.Text?.Text;
-                        if (!string.IsNullOrWhiteSpace(text))
-                        {
-                            if (isBulleted)
-                                sb.Append(
-                                    $"{indent}- {text}");
-                            else if (isNumbered)
-                                sb.Append(
-                                    $"{indent}1. {text}");
-                            else
-                                sb.Append(text);
-                        }
+                        if (isBulleted)
+                            sb.Append(indent + "- ");
+                        else if (isNumbered)
+                            sb.Append(indent + "1. ");
+                        else
+                            sb.Append(indent);
                     }
 
-                    sb.AppendLine();
+                    foreach (var run in paragraph.Elements<A.Run>())
+                    {
+                        var text = run.Text?.Text;
+                        if (!string.IsNullOrWhiteSpace(text)) sb.Append(text);
+                    }
+
+                    if (hasText)
+                        sb.AppendLine();
                 }
         }
 
