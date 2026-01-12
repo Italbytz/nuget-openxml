@@ -9,17 +9,17 @@ using A = DocumentFormat.OpenXml.Drawing;
 public static class PresentationDocumentExtensions
 {
     public static void ExportToQuartoMarkdown(
-        this PresentationDocument presentationDocument, string outputDirectory,
-        string fileName = "presentation.qmd", string title = "Presentation",
+        this PresentationDocument presentationDocument, string destinationFile,
+        string imageDirectory, string title = "Presentation",
         string? author = null)
     {
         ArgumentNullException.ThrowIfNull(presentationDocument);
 
-        if (string.IsNullOrWhiteSpace(outputDirectory))
+        if (string.IsNullOrWhiteSpace(destinationFile))
             throw new ArgumentException("Output path cannot be null or empty.",
-                nameof(outputDirectory));
+                nameof(destinationFile));
 
-        var directory = Path.GetDirectoryName(outputDirectory);
+        var directory = Path.GetDirectoryName(destinationFile);
         if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
             Directory.CreateDirectory(directory);
 
@@ -59,13 +59,12 @@ public static class PresentationDocumentExtensions
             sb.AppendLine("::: {.column width=\"50%\"}");
             foreach (var imagePart in slidePart.ImageParts)
             {
-                var imageDirectory = Path.Combine(outputDirectory, "images");
                 if (!Directory.Exists(imageDirectory))
                     Directory.CreateDirectory(imageDirectory);
-                var imageFileName = Path.GetFileName(imagePart.Uri.ToString());
-                // ToDo: Handle duplicate image names
-                /*var imageFileName =
-                    $"{Guid.NewGuid()}{Path.GetExtension(imagePart.Uri.ToString())}";*/
+                //var imageFileName = Path.GetFileName(imagePart.Uri.ToString());
+
+                var imageFileName =
+                    $"{Guid.NewGuid()}{Path.GetExtension(imagePart.Uri.ToString())}";
                 var imagePath =
                     Path.Combine(imageDirectory, imageFileName);
 
@@ -77,7 +76,7 @@ public static class PresentationDocumentExtensions
                 }
 
                 // Add image markdown
-                sb.AppendLine($"![](images/{imageFileName})");
+                sb.AppendLine($"![]({imagePath})");
                 sb.AppendLine();
             }
 
@@ -86,9 +85,7 @@ public static class PresentationDocumentExtensions
             sb.AppendLine();
         }
 
-        var outputPath = Path.Combine(outputDirectory, fileName);
-
-        File.WriteAllText(outputPath, sb.ToString());
+        File.WriteAllText(destinationFile, sb.ToString());
     }
 
 
@@ -129,16 +126,6 @@ public static class PresentationDocumentExtensions
                     var isBulleted =
                         paragraphProperties
                             ?.GetFirstChild<A.NoBullet>() == null;
-                    /*var isBulleted =
-                        paragraphProperties?.GetFirstChild<A.BulletFont>() !=
-                        null &&
-                        paragraphProperties
-                            ?.GetFirstChild<A.NoBullet>() == null;*/
-                    /*var isBulleted =
-                        paragraphProperties?.GetFirstChild<A.BulletFont>() !=
-                        null ||
-                        paragraphProperties
-                            ?.GetFirstChild<A.AutoNumberedBullet>() == null;*/
                     var isNumbered =
                         paragraphProperties
                             ?.GetFirstChild<A.AutoNumberedBullet>() != null;

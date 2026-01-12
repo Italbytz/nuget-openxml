@@ -5,14 +5,13 @@ namespace Italbytz.OpenXml;
 public static class PresentationConverter
 {
     public static void ConvertToQuartoMarkdown(string presentationFile,
-        string outputDirectory)
+        string destinationFile, string imageDirectory,
+        string title = "Presentation",
+        string? author = null)
     {
-        var fileName = Path.GetFileNameWithoutExtension(presentationFile) +
-                       ".qmd";
         using var presentationDocument =
             PresentationDocument.Open(presentationFile, false);
         presentationDocument.ExportToQuartoMarkdown(
-            "/Users/nunkesser/repos/work/ppt/PM-Folien",
-            fileName);
+            destinationFile, imageDirectory, title, author);
     }
 }
