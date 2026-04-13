@@ -5,10 +5,3 @@
 ## See Also
 
 This package has been superseded by [`nuget-foundation`](https://github.com/italbytz/nuget-foundation).
-
-## See Also
-
-This package has been superseded by **[`nuget-foundation`](https://github.com/italbytz/nuget-foundation)**.
-
-
-
