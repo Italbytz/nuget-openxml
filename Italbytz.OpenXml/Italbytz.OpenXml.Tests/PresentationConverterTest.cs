@@ -7,9 +7,9 @@ public sealed class PresentationConverterTest
     public void TestMethod4()
     {
         PresentationConverter.ConvertToQuartoMarkdown(
-            "/Users/nunkesser/repos/work/ppt/PM-Folien/LE01.pptx",
-            "/Users/nunkesser/repos/work/md/quarto/itp/Einfuehrung.qmd",
-            "/Users/nunkesser/repos/work/images/itp", "Einführung",
+            "/Users/nunkesser/repos/work/ppt/CES.pptx",
+            "/Users/nunkesser/repos/work/md/quarto/gdi/CES.qmd",
+            "/Users/nunkesser/repos/work/images/gdi", "XYZ",
             "Prof. Dr. Robin Nunkesser");
     }
 }
